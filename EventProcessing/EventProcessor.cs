@@ -65,6 +65,7 @@ namespace BlogService.EventProcessing
             catch (Exception ex)
             {
                 Console.WriteLine($"--> Could not create user profile: {ex.Message}");
+                throw;
             }
         }
     }

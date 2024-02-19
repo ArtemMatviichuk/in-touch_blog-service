@@ -1,6 +1,5 @@
-
 using System.Text;
-using BlogService.Common.Constants;
+using BlogService.AppSettingsOptions;
 using BlogService.EventProcessing;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -9,16 +8,20 @@ namespace BlogService.AsyncDataServices
 {
     public class MessageBusSubscriber : BackgroundService
     {
-        private readonly IConfiguration _configuration;
+        private readonly RabbitMQOptions _options;
         private readonly IEventProcessor _eventProcessor;
+        private readonly ILogger<MessageBusSubscriber> _logger;
+
         private IConnection? _connection;
         private IModel? _chanel;
-        private string? _queueName;
+        private string? _consumerTag;
 
-        public MessageBusSubscriber(IConfiguration configuration, IEventProcessor eventProcessor)
+        public MessageBusSubscriber(RabbitMQOptions options, IEventProcessor eventProcessor,
+            ILogger<MessageBusSubscriber> logger)
         {
-            _configuration = configuration;
+            _options = options;
             _eventProcessor = eventProcessor;
+            _logger = logger;
 
             InitializeRabbitMQ();
         }
@@ -27,6 +30,8 @@ namespace BlogService.AsyncDataServices
         {
             if (_chanel != null && _chanel.IsOpen)
             {
+                _chanel.BasicCancel(_consumerTag);
+
                 _chanel.Close();
                 _connection?.Close();
             }
@@ -40,27 +45,46 @@ namespace BlogService.AsyncDataServices
 
             var consumer = new EventingBasicConsumer(_chanel);
             consumer.Received += async (moduleHandle, ea) =>
-                await _eventProcessor.ProcessEvent(Encoding.UTF8.GetString(ea.Body.ToArray()));
+                {
+                    var body = ea.Body.ToArray();
+                    var message = Encoding.UTF8.GetString(body);
 
-            _chanel?.BasicConsume(queue: _queueName, autoAck: true, consumer: consumer);
+                    try
+                    {
+                        await _eventProcessor.ProcessEvent(message);
+                        _chanel?.BasicAck(ea.DeliveryTag, false);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError($"RabbitMQ message was not processed properly: {ex.Message}");
+                        throw;
+                    }
+                };
+
+            _consumerTag = _chanel?.BasicConsume(_options.QueueName, false, consumer: consumer);
 
             return Task.CompletedTask;
         }
 
         private void InitializeRabbitMQ()
         {
-            Console.WriteLine($"--> RabbitMQ address: {_configuration[AppConstants.RabbitMQHost]}:{_configuration[AppConstants.RabbitMQPort]}");
+            Console.WriteLine($"--> RabbitMQ address: {_options.Host}:{_options.Host}");
             var factory = new ConnectionFactory()
             {
-                HostName = _configuration[AppConstants.RabbitMQHost],
-                Port = int.Parse(_configuration[AppConstants.RabbitMQPort]!)
+                HostName = _options.Host,
+                Port = int.Parse(_options.Port),
+                ClientProvidedName = _options.ClientProvidedName,
+                UserName = _options.UserName,
+                Password = _options.Password,
             };
 
             _connection = factory.CreateConnection();
             _chanel = _connection.CreateModel();
-            _chanel.ExchangeDeclare(exchange: "trigger", type: ExchangeType.Fanout);
-            _queueName = _chanel.QueueDeclare().QueueName;
-            _chanel.QueueBind(queue: _queueName, exchange: "trigger", routingKey: "");
+
+            _chanel.ExchangeDeclare(_options.Exchange, ExchangeType.Direct);
+            _chanel.QueueDeclare(_options.QueueName, false, false, false, null);
+            _chanel.QueueBind(_options.QueueName, _options.Exchange, _options.RoutingKey, null);
+            _chanel.BasicQos(0, 1, false);
 
             Console.WriteLine("--> Listening on the Message Bus");
 

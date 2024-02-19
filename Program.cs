@@ -8,10 +8,15 @@ using BlogService.Data.Repositories.Implementations;
 using BlogService.EventProcessing;
 using BlogService.AsyncDataServices;
 using BlogService.SyncDataServices.Grpc;
+using BlogService.AppSettingsOptions;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+var rabbitMQOptions = new RabbitMQOptions();
+builder.Configuration.Bind(nameof(RabbitMQOptions), rabbitMQOptions);
+builder.Services.AddSingleton(rabbitMQOptions);
+
 builder.Services.AddDbContext<BlogContext>(opt => opt.UseSqlServer(
     builder.Configuration.GetConnectionString(AppConstants.ConnectionStringName)
 ));
