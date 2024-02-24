@@ -1,6 +1,6 @@
 using System.Text;
 using BlogService.AppSettingsOptions;
-using BlogService.EventProcessing;
+using BlogService.EventProcessing.Interfaces;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
@@ -9,18 +9,18 @@ namespace BlogService.AsyncDataServices
     public class MessageBusSubscriber : BackgroundService
     {
         private readonly RabbitMQOptions _options;
-        private readonly IEventProcessor _eventProcessor;
+        private readonly IServiceScopeFactory _scopeFactory;
         private readonly ILogger<MessageBusSubscriber> _logger;
 
         private IConnection? _connection;
         private IModel? _chanel;
         private string? _consumerTag;
 
-        public MessageBusSubscriber(RabbitMQOptions options, IEventProcessor eventProcessor,
+        public MessageBusSubscriber(RabbitMQOptions options, IServiceScopeFactory scopeFactory,
             ILogger<MessageBusSubscriber> logger)
         {
             _options = options;
-            _eventProcessor = eventProcessor;
+            _scopeFactory = scopeFactory;
             _logger = logger;
 
             InitializeRabbitMQ();
@@ -51,7 +51,10 @@ namespace BlogService.AsyncDataServices
 
                     try
                     {
-                        await _eventProcessor.ProcessEvent(message);
+                        var scope = _scopeFactory.CreateScope();
+                        var eventProcessor = scope.ServiceProvider.GetRequiredService<IEventProcessor>();
+
+                        await eventProcessor.ProcessEvent(message);
                         _chanel?.BasicAck(ea.DeliveryTag, false);
                     }
                     catch (Exception ex)
@@ -61,14 +64,14 @@ namespace BlogService.AsyncDataServices
                     }
                 };
 
-            _consumerTag = _chanel?.BasicConsume(_options.QueueName, false, consumer: consumer);
+            _consumerTag = _chanel?.BasicConsume(_options.Auth.QueueName, false, consumer: consumer);
 
             return Task.CompletedTask;
         }
 
         private void InitializeRabbitMQ()
         {
-            Console.WriteLine($"--> RabbitMQ address: {_options.Host}:{_options.Host}");
+            Console.WriteLine($"--> RabbitMQ address: {_options.Host}:{_options.Port}");
             var factory = new ConnectionFactory()
             {
                 HostName = _options.Host,
@@ -81,10 +84,9 @@ namespace BlogService.AsyncDataServices
             _connection = factory.CreateConnection();
             _chanel = _connection.CreateModel();
 
-            _chanel.ExchangeDeclare(_options.Exchange, ExchangeType.Direct);
-            _chanel.QueueDeclare(_options.QueueName, false, false, false, null);
-            _chanel.QueueBind(_options.QueueName, _options.Exchange, _options.RoutingKey, null);
-            _chanel.BasicQos(0, 1, false);
+            _chanel.ExchangeDeclare(_options.Auth.Exchange, type: ExchangeType.Fanout);
+            _chanel.QueueDeclare(_options.Auth.QueueName, false, false, false, null);
+            _chanel.QueueBind(_options.Auth.QueueName, _options.Auth.Exchange, _options.Auth.RoutingKey, null);
 
             Console.WriteLine("--> Listening on the Message Bus");
 
@@ -93,7 +95,7 @@ namespace BlogService.AsyncDataServices
 
         private void RabbitMQ_ConnectionShutdown(object? sender, ShutdownEventArgs e)
         {
-            Console.WriteLine("--> Connection Shutdown");
+            _logger.LogInformation("RabbitMQ connection closed");
         }
     }
 }

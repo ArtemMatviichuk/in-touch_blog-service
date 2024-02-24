@@ -1,4 +1,4 @@
-namespace BlogService.EventProcessing
+﻿namespace BlogService.EventProcessing.Interfaces
 {
     public interface IEventProcessor
     {

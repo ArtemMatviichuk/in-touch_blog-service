@@ -1,3 +1,4 @@
+using BlogService.Common.Dtos.Profiles;
 using BlogService.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -5,6 +6,7 @@ using System.Security.Claims;
 
 namespace BlogService.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class UserProfileController : ControllerBase
@@ -15,14 +17,39 @@ public class UserProfileController : ControllerBase
         _userProfileService = userProfileService;
     }
 
-    [HttpGet]
-    public IActionResult Get()
+    [Authorize(Roles = "Admin")]
+    [HttpGet("All")]
+    public async Task<IActionResult> GetAll()
     {
-        System.Console.WriteLine(User.FindFirstValue(ClaimTypes.NameIdentifier));
-        foreach (var item in User.Claims)
-        {
-            System.Console.WriteLine(item.Value);
-        }
-        return Ok("It works");
+        var response = await _userProfileService.GetProfiles();
+
+        return Ok(response);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetProfile()
+    {
+        int authId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var response = await _userProfileService.GetProfile(authId);
+
+        return Ok(response);
+    }
+
+    [HttpPut]
+    public async Task<IActionResult> UpdateProfile([FromForm] UpdateUserProfileDto dto)
+    {
+        int authId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        await _userProfileService.UpdateProfile(authId, dto);
+
+        return NoContent();
+    }
+
+    [AllowAnonymous]
+    [HttpGet("{id}/Avatar")]
+    public async Task<IActionResult> GetAvatar(int id)
+    {
+        var file = await _userProfileService.GetProfileAvatar(id);
+
+        return File(file.Bytes!, file.ContentType, file.FileName);
     }
 }

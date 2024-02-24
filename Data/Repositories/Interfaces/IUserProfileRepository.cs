@@ -5,5 +5,6 @@ namespace BlogService.Data.Repositories.Interfaces
 {
     public interface IUserProfileRepository : IRepository<UserProfile>
     {
+        Task<UserProfile?> GetByAuthId(int authId);
     }
 }
