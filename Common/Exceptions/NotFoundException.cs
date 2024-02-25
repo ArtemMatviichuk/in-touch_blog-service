@@ -12,5 +12,4 @@ public class NotFoundException : CustomException
         : base(message, innerException)
     {
     }
-
 }

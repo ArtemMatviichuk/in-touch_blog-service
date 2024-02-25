@@ -17,6 +17,7 @@ using BlogService.Common.MappingProfile;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,10 +36,13 @@ builder.Services.AddDbContext<BlogContext>(opt => opt.UseSqlServer(
 
 // REPOSITORIES
 builder.Services.AddTransient<IUserProfileRepository, UserProfileRepository>();
+builder.Services.AddTransient<IPostRepository, PostRepository>();
+builder.Services.AddTransient<ICommentRepository, CommentRepository>();
 
 // SERVICES
 // api services
 builder.Services.AddTransient<IUserProfileService, UserProfileService>();
+builder.Services.AddTransient<IPostService, PostService>();
 
 // events services
 builder.Services.AddTransient<IEventDeterminator, EventDeterminator>();
@@ -60,7 +64,32 @@ builder.Services.AddSingleton(
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(opt =>
+{
+    opt.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Type = SecuritySchemeType.Http,
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Scheme = "Bearer",
+
+    });
+
+    opt.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Id = "Bearer",
+                    Type = ReferenceType.SecurityScheme,
+                }
+            },
+            new string[]{}
+        }
+    });
+});
 
 builder.Services
    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
