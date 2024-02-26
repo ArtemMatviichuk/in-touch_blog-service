@@ -19,12 +19,15 @@ namespace BlogService.Common.MappingProfile
                 .ForMember(e => e.AvatarPath, opt => opt.Ignore());
 
             // POSTS
-            CreateMap<CreatePostDto, Post>();
+            CreateMap<CreatePostDto, Post>()
+                .ForMember(e => e.Title, opt => opt.MapFrom(e => e.Title!.Trim()))
+                .ForMember(e => e.Text, opt => opt.MapFrom(e => e.Text!.Trim()));
             CreateMap<Post, PostDto>()
                 .ForMember(e => e.AuthorName, opt => opt.MapFrom(e => e.Author!.FullName));
 
             // COMMENTS
-            CreateMap<CreateCommentDto, Comment>();
+            CreateMap<CreateCommentDto, Comment>()
+                .ForMember(e => e.Text, opt => opt.MapFrom(e => e.Text!.Trim()));
             CreateMap<Comment, CommentDto>()
                 .ForMember(e => e.AuthorName, opt => opt.MapFrom(e => e.Author!.FullName));
         }

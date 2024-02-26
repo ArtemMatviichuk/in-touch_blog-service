@@ -43,6 +43,7 @@ builder.Services.AddTransient<ICommentRepository, CommentRepository>();
 // api services
 builder.Services.AddTransient<IUserProfileService, UserProfileService>();
 builder.Services.AddTransient<IPostService, PostService>();
+builder.Services.AddTransient<ICommentService, CommentService>();
 
 // events services
 builder.Services.AddTransient<IEventDeterminator, EventDeterminator>();

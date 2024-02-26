@@ -7,6 +7,6 @@ namespace BlogService.Common.Dtos.Comments
         [Required]
         public string? Text { get; set; }
         public int? PostId { get; set; }
-        public int? CommentId { get; set; }
+        public int? ParentId { get; set; }
     }
 }
