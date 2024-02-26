@@ -27,10 +27,10 @@ namespace BlogService.Controllers
             return Ok(posts);
         }
 
-        [HttpGet("User/{id}")]
-        public async Task<IActionResult> GetAllUserPosts(int id)
+        [HttpGet("User/{publicId}")]
+        public async Task<IActionResult> GetAllUserPosts(string publicId)
         {
-            var posts = await _postsService.GetPosts(id);
+            var posts = await _postsService.GetPosts(publicId);
 
             return Ok(posts);
         }

@@ -37,7 +37,7 @@ namespace BlogService.EventProcessing.Implementations
             return type switch
             {
                 EventType.Undetermined => throw new Exception("Event type is not determined"),
-                EventType.UserRegistered => _eventsService.CreateUser(Deserialize<IdDto>(message)),
+                EventType.UserRegistered => _eventsService.CreateUser(Deserialize<IdPublicIdDto>(message)),
                 EventType.UserRemoved => _eventsService.ClearUser(Deserialize<IdDto>(message)),
                 _ => throw new Exception("Event type does not exist or is not implemented"),
             };

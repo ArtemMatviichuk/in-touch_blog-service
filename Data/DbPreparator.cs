@@ -19,7 +19,7 @@ public static class DbPreparator
         }
     }
 
-    private static async Task InsertUsers(IEventsService? service, IEnumerable<IdDto>? dtos)
+    private static async Task InsertUsers(IEventsService? service, IEnumerable<IdPublicIdDto>? dtos)
     {
         if (service is null || dtos is null)
             return;

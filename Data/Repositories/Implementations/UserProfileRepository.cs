@@ -11,6 +11,13 @@ namespace BlogService.Data.Repositories.Implementations
         {
         }
 
+        public async Task<UserProfile?> GetByPublicId(string publicId)
+        {
+            return await _context.Set<UserProfile>()
+                .AsTracking()
+                .FirstOrDefaultAsync(e => e.PublicId == publicId);
+        }
+
         public async Task<UserProfile?> GetByAuthId(int authId)
         {
             return await _context.Set<UserProfile>()

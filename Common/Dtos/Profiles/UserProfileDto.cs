@@ -2,11 +2,14 @@
 {
     public class UserProfileDto
     {
-        public int Id { get; set; }
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
         public string FullName => $"{FirstName} {LastName}";
         public DateTime? DateOfBirth { get; set; }
         public bool HasAvatar { get; set; }
+
+        public string? Description { get; set; }
+
+        public string PublicId { get; set; } = string.Empty;
     }
 }

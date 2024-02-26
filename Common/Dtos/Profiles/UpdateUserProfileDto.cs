@@ -7,5 +7,7 @@
         public DateTime? DateOfBirth { get; set; }
         public IFormFile? Avatar { get; set; }
         public bool RemoveAvatar { get; set; }
+
+        public string? Description { get; set; }
     }
 }

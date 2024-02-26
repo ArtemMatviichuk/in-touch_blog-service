@@ -4,6 +4,7 @@ using BlogService.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BlogService.Migrations
 {
     [DbContext(typeof(BlogContext))]
-    partial class BlogContextModelSnapshot : ModelSnapshot
+    [Migration("20240226190338_Profile_DisplayName")]
+    partial class Profile_DisplayName
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -114,6 +117,9 @@ namespace BlogService.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("DisplayName")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("FirstName")
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
@@ -125,19 +131,15 @@ namespace BlogService.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
-                    b.Property<string>("PublicId")
-                        .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("AuthenticationId")
                         .IsUnique()
                         .HasFilter("[AuthenticationId] IS NOT NULL");
 
-                    b.HasIndex("PublicId")
-                        .IsUnique();
+                    b.HasIndex("DisplayName")
+                        .IsUnique()
+                        .HasFilter("[DisplayName] IS NOT NULL");
 
                     b.ToTable("UserProfiles", (string)null);
                 });

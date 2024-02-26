@@ -75,9 +75,9 @@ namespace BlogService.Services.Implementations
             await _userProfileRepository.SaveChanges();
         }
 
-        public async Task<FileDto> GetProfileAvatar(int id)
+        public async Task<FileDto> GetProfileAvatar(string publicId)
         {
-            var profile = await _userProfileRepository.Get(id);
+            var profile = await _userProfileRepository.GetByPublicId(publicId);
             if (profile == null)
                 throw new NotFoundException("User not found");
 

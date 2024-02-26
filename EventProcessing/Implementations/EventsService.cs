@@ -21,7 +21,7 @@ namespace BlogService.EventProcessing.Implementations
             _logger = logger;
         }
 
-        public async Task CreateUser(IdDto? dto)
+        public async Task CreateUser(IdPublicIdDto? dto)
         {
             if (dto == null)
             {
@@ -33,7 +33,7 @@ namespace BlogService.EventProcessing.Implementations
 
             if (!await _userProfileRepository.Exists(e => e.AuthenticationId == dto.Id))
             {
-                await _userProfileRepository.Add(new UserProfile() { AuthenticationId = dto.Id });
+                await _userProfileRepository.Add(new UserProfile() { AuthenticationId = dto.Id, PublicId = dto.PublicId });
                 await _userProfileRepository.SaveChanges();
             }
         }

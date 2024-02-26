@@ -9,6 +9,6 @@ namespace BlogService.Services.Interfaces
         Task<IEnumerable<UserProfileDto>> GetProfiles();
         Task<UserProfileDto> GetProfile(int authId);
         Task UpdateProfile(int authId, UpdateUserProfileDto dto);
-        Task<FileDto> GetProfileAvatar(int id);
+        Task<FileDto> GetProfileAvatar(string publicId);
     }
 }

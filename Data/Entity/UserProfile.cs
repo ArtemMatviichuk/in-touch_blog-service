@@ -4,6 +4,7 @@ namespace BlogService.Data.Entity
     {
         public int Id { get; set; }
         public int? AuthenticationId { get; set; }
+        public string PublicId { get; set; } = string.Empty;
 
         public string? FirstName { get; set; }
         public string? LastName { get; set; }

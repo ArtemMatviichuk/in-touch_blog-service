@@ -16,7 +16,7 @@ namespace BlogService.SyncDataServices.Grpc
             _logger = logger;
         }
 
-        public async Task<IEnumerable<IdDto>?> GetAllUsers()
+        public async Task<IEnumerable<IdPublicIdDto>?> GetAllUsers()
         {
             Console.WriteLine($"--> Calling gRPC Service {_configuration[AppConstants.GrpcAuthentication]}");
             _logger.LogInformation($"Calling gRPC Service {_configuration[AppConstants.GrpcAuthentication]}");
@@ -28,7 +28,7 @@ namespace BlogService.SyncDataServices.Grpc
             try
             {
                 var replay = await client.GetAllUsersAsync(request);
-                return replay.Users.Select(u => new IdDto(u.UserId));
+                return replay.Users.Select(u => new IdPublicIdDto(u.UserId, u.PublicId));
             }
             catch (Exception ex)
             {

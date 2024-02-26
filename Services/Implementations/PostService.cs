@@ -38,9 +38,9 @@ namespace BlogService.Services.Implementations
             return dtos;
         }
 
-        public async Task<IEnumerable<PostDto>> GetPosts(int authorId)
+        public async Task<IEnumerable<PostDto>> GetPosts(string publicId)
         {
-            var user = await _profileRepository.Get(authorId);
+            var user = await _profileRepository.GetByPublicId(publicId);
             if (user == null)
                 throw new NotFoundException("User not found");
 

@@ -45,10 +45,10 @@ public class UserProfileController : ControllerBase
     }
 
     [AllowAnonymous]
-    [HttpGet("{id}/Avatar")]
-    public async Task<IActionResult> GetAvatar(int id)
+    [HttpGet("{publicId}/Avatar")]
+    public async Task<IActionResult> GetAvatar(string publicId)
     {
-        var file = await _userProfileService.GetProfileAvatar(id);
+        var file = await _userProfileService.GetProfileAvatar(publicId);
 
         return File(file.Bytes!, file.ContentType, file.FileName);
     }

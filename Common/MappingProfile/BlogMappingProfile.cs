@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BlogService.Common.Constants;
 using BlogService.Common.Dtos.Comments;
 using BlogService.Common.Dtos.Data;
 using BlogService.Common.Dtos.Posts;
@@ -23,13 +24,21 @@ namespace BlogService.Common.MappingProfile
                 .ForMember(e => e.Title, opt => opt.MapFrom(e => e.Title!.Trim()))
                 .ForMember(e => e.Text, opt => opt.MapFrom(e => e.Text!.Trim()));
             CreateMap<Post, PostDto>()
-                .ForMember(e => e.AuthorName, opt => opt.MapFrom(e => e.Author!.FullName));
+                .ForMember(e => e.AuthorName, opt => opt.MapFrom(e => GetAuthorName(e.Author)));
 
             // COMMENTS
             CreateMap<CreateCommentDto, Comment>()
                 .ForMember(e => e.Text, opt => opt.MapFrom(e => e.Text!.Trim()));
             CreateMap<Comment, CommentDto>()
-                .ForMember(e => e.AuthorName, opt => opt.MapFrom(e => e.Author!.FullName));
+                .ForMember(e => e.AuthorName, opt => opt.MapFrom(e => GetAuthorName(e.Author)));
+        }
+
+        private static string GetAuthorName(UserProfile? user)
+        {
+            if (user == null)
+                return LabelConstants.Unknown;
+
+            return user.AuthenticationId.HasValue ? user.FullName : LabelConstants.DeletedAccount;
         }
     }
 }

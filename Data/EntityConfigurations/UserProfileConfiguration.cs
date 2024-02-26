@@ -11,6 +11,9 @@ namespace BlogService.Data.EntityConfigurations{
             
             builder.HasIndex(e => e.AuthenticationId).IsUnique();
 
+            builder.Property(e => e.PublicId).IsRequired().HasMaxLength(128);
+            builder.HasIndex(e => e.PublicId).IsUnique();
+
             builder.Property(e => e.FirstName).HasMaxLength(255);
             builder.Property(e => e.LastName).HasMaxLength(255);
             builder.Property(e => e.AvatarPath).HasMaxLength(255);

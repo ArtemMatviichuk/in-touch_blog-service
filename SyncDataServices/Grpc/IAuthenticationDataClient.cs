@@ -5,6 +5,6 @@ namespace BlogService.SyncDataServices.Grpc
 {
     public interface IAuthenticationDataClient
     {
-        Task<IEnumerable<IdDto>?> GetAllUsers();
+        Task<IEnumerable<IdPublicIdDto>?> GetAllUsers();
     }
 }
