@@ -51,7 +51,7 @@ namespace BlogService.AsyncDataServices
 
                     try
                     {
-                        var scope = _scopeFactory.CreateScope();
+                        using var scope = _scopeFactory.CreateScope();
                         var eventProcessor = scope.ServiceProvider.GetRequiredService<IEventProcessor>();
 
                         await eventProcessor.ProcessEvent(message);

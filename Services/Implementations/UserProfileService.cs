@@ -70,6 +70,7 @@ namespace BlogService.Services.Implementations
             else if (dto.RemoveAvatar)
             {
                 RemoveProfileAvatar(profile);
+                profile.AvatarPath = null;
             }
 
             await _userProfileRepository.SaveChanges();

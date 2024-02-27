@@ -14,6 +14,7 @@ namespace BlogService.Data.Repositories.Implementations
         public async Task<Comment?> GetFullComment(int id)
         {
             return await _context.Set<Comment>()
+                .AsNoTracking()
                 .Include(e => e.Author)
                 .FirstOrDefaultAsync(e => e.Id == id);
         }
@@ -21,6 +22,7 @@ namespace BlogService.Data.Repositories.Implementations
         public async Task<IEnumerable<Comment>> GetPostChain(int postId)
         {
             var comments = await _context.Set<Comment>()
+                .AsNoTracking()
                 .Include(e => e.Author)
                 .Where(e => e.PostId == postId)
                 .ToListAsync();
@@ -31,6 +33,7 @@ namespace BlogService.Data.Repositories.Implementations
         public async Task<IEnumerable<Comment>> GetChildrenChain(int commentId)
         {
             var comments = await _context.Set<Comment>()
+                .AsNoTracking()
                 .Include(e => e.Author)
                 .Where(e => e.ParentId == commentId)
                 .ToListAsync();
@@ -46,6 +49,7 @@ namespace BlogService.Data.Repositories.Implementations
             }
 
             var comments = await _context.Set<Comment>()
+                .AsNoTracking()
                 .Include(e => e.Author)
                 .Where(e => e.ParentId.HasValue && parentIds.Contains(e.ParentId.Value))
                 .ToListAsync();
